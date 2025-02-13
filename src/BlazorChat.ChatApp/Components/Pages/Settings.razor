@@ -1,0 +1,121 @@
+﻿@page "/settings"
+@rendermode InteractiveServer
+
+<PageTitle>Settings</PageTitle>
+
+<h1>Settings</h1>
+
+<div>
+    <label for="endpoint">Endpoint:</label>
+    <input type="url" id="endpoint" @bind="endpoint" class="input-field" />
+</div>
+<div>
+    <label for="apiKey">API Key / GitHub Token:</label>
+    <input type="password" id="apiKey" @bind="apiKey" class="input-field" />
+</div>
+<div>
+    <label for="deploymentName">Deployment Name:</label>
+    <input type="text" id="deploymentName" @bind="deploymentName" class="input-field" />
+</div>
+<div>
+    <label for="tenantId">Tenant ID:</label>
+    <input type="text" id="tenantId" @bind="tenantId" class="input-field" />
+</div>
+<button class="btn btn-primary" @onclick="SaveSettings">SAVE</button>
+<button class="btn btn-secondary" @onclick="SetGitHubModelsDefaults">Set GitHub Models Default Endpoint</button>
+
+<p></p>
+<p>
+    To create a GitHub token to be used in the <strong>API Key / GitHub Token</strong> field, please follow the instructions
+    <a href="https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens" target="_blank">here</a>.
+</p>
+
+@if (!string.IsNullOrEmpty(saveMessage))
+{
+    <div class="save-message">@saveMessage</div>
+}
+
+@code {
+    private string endpoint = string.Empty;
+    private string apiKey = string.Empty;
+    private string deploymentName = string.Empty;
+    private string tenantId = string.Empty;
+    private string saveMessage = string.Empty;
+
+    [Inject]
+    private IConfiguration Configuration { get; set; } = default!;
+
+    protected override void OnInitialized()
+    {
+        endpoint = Configuration["endpoint"] ?? string.Empty;
+        apiKey = Configuration["apikey"] ?? string.Empty;
+        deploymentName = Configuration["deploymentname"] ?? string.Empty;
+        tenantId = Configuration["tenantid"] ?? string.Empty;
+    }
+
+    private void SaveSettings()
+    {
+        // Save the settings to the configuration
+        Configuration["endpoint"] = endpoint;
+        Configuration["apikey"] = apiKey;
+        Configuration["deploymentname"] = deploymentName;
+        Configuration["tenantid"] = tenantId;
+
+        // Display a message to inform the user that the changes were saved
+        saveMessage = "Settings have been saved successfully.";
+    }
+
+    private void SetGitHubModelsDefaults()
+    {
+        endpoint = "https://models.github.ai/inference";
+    }
+}
+
+<style>
+    h1 {
+        color: #4a148c;
+    }
+
+    .input-field {
+        display: block;
+        margin-bottom: 10px;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        width: 100%;
+        max-width: 400px;
+    }
+
+    .btn-primary {
+        background-color: #6a1b9a;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+        .btn-primary:hover {
+            background-color: #4a148c;
+        }
+
+    .btn-secondary {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-left: 10px;
+    }
+
+        .btn-secondary:hover {
+            background-color: #0056b3;
+        }
+
+    .save-message {
+        margin-top: 20px;
+        color: #4a148c;
+        font-weight: bold;
+    }
+</style>

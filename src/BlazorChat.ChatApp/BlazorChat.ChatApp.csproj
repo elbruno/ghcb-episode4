@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>0ed4eb64-1aec-4522-86a3-2ca9ee76c03f</UserSecretsId>
+  </PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Azure.Identity" Version="1.12.1" />
+		<PackageReference Include="Microsoft.SemanticKernel" Version="1.22.0" />
+		<PackageReference Include="Microsoft.SemanticKernel.Connectors.AzureAIInference" Version="1.22.0-beta" />
+		<PackageReference Include="Microsoft.SemanticKernel.Connectors.Ollama" Version="1.22.0-alpha" />
+	</ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BlazorChat.ServiceDefaults\BlazorChat.ServiceDefaults.csproj" />
+  </ItemGroup>
+
+</Project>

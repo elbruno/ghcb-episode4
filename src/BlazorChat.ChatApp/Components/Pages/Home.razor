@@ -1,0 +1,229 @@
+﻿@page "/"
+@using Azure
+@using Azure.AI.Inference
+@using Azure.Identity
+@using Microsoft.Extensions.Configuration
+@using System.Text.RegularExpressions
+@using Microsoft.SemanticKernel
+@using Microsoft.SemanticKernel.ChatCompletion
+@using System.ClientModel
+@using OpenAI
+@attribute [StreamRendering(true)]
+@rendermode InteractiveServer
+
+<PageTitle>Chat</PageTitle>
+
+<link href="css/Home.css" rel="stylesheet" />
+
+<div class="chat-container">
+    <div class="chat-bubble assistant">
+        <div class="chat-title">Blazor ChatApp</div>
+        <div class="chat-content">
+            <p>Hi, I'm @deploymentName, let's chat!</p>
+            <p>Check the Settings page to test the model using GitHub Models, Azure AI Foundry or to use custom settings.</p>
+        </div>
+    </div>
+    @foreach (var messageItem in ChatMessages)
+    {
+        string messageContent = string.Empty;
+        string messageThink = string.Empty;
+        string messageTitle = string.Empty;
+        ChatMessageContent message = messageItem as ChatMessageContent;
+        messageContent = message.Content;
+
+        if (message.Role == AuthorRole.User)
+        {
+            messageTitle = "User";
+        }
+        if (message.Role == AuthorRole.Assistant)
+        {
+            messageTitle = deploymentName;
+
+            // validate for reasoning models
+            var match = Regex.Match(messageContent, @"<think>(.*?)<\/think>(.*)", RegexOptions.Singleline);
+            if (match.Success)
+            {
+                messageThink = match.Groups[1].Value.Trim();
+                messageContent = match.Groups[2].Value.Trim();
+            }
+
+        }
+        if (message.Role == AuthorRole.System)
+        {
+            // we don't process and show the chat for the system message
+            //messageContent = systemMessage?.Content ?? string.Empty;
+        }
+
+        if (!string.IsNullOrEmpty(messageContent))
+        {
+            <div class="@(message.Role == AuthorRole.User ? "chat-bubble user" : "chat-bubble assistant")">
+                <div class="chat-title">@messageTitle:</div>
+                <div class="chat-content">
+                    @messageContent
+                    @if (message.Role == AuthorRole.Assistant && !string.IsNullOrEmpty(messageThink))
+                    {
+                        <details>
+                            <summary class="think-summary">Show Think Process</summary>
+                            <div class="think-content">@messageThink</div>
+                        </details>
+                    }
+                </div>
+            </div>
+        }
+    }
+</div>
+
+@if (isLoading)
+{
+    <div class="loading-container">
+        <div class="loading-ring"></div>
+    </div>
+}
+
+<div class="chat-input-container">
+    <input type="text" @bind="userQuestion" placeholder="Ask a question..." class="chat-input" />
+    <button @onclick="AskQuestion" type="submit" class="chat-button">Chat</button>
+</div>
+
+@if (!string.IsNullOrEmpty(errorDetails))
+{
+    <div class="error-container">
+        <div class="error-title">Error:</div>
+        <div class="error-content">@errorDetails</div>
+    </div>
+}
+
+@code {
+    private bool isLoading = false;
+    private string? chatResponse;
+    private string userQuestion = string.Empty;
+    private string errorDetails = string.Empty;
+    //private ChatCompletionsClient? client;
+    IChatCompletionService? chatCompletionService;
+    private string apiKey = string.Empty;
+    private string endpoint = string.Empty;
+    private string tenantId = string.Empty;
+    private string deploymentName = "gpt-4o-mini";
+    [Inject] private IConfiguration Configuration { get; set; } = default!;
+    [Inject] private ILogger<Program> Logger { get; set; } = default!;
+    //private IList<ChatRequestMessage> ChatMessages = new List<ChatRequestMessage>();
+    private ChatHistory ChatMessages = new ChatHistory();
+
+    protected override void OnInitialized()
+    {
+        CreateChat();
+
+        // init messages
+        ChatMessages.AddSystemMessage("You are a helpful assistant. You always replies using text and emojis. You never generate HTML or Markdown.");
+
+        // debugging purpose only, add sample messages
+        // foreach (var message in ChatMessageHelper.GetSampleChatMessages())
+        // {
+        //     ChatMessages.Add(message);
+        // }
+    }
+
+    private async Task AskQuestion(MouseEventArgs e)
+    {
+        try
+        {
+            isLoading = true;
+            StateHasChanged();
+
+            if (chatCompletionService == null)
+            {
+                Logger.LogInformation("Chat component is not initialized.");
+                return;
+            }
+
+            Logger.LogInformation($"Add user question: {userQuestion}");
+            ChatMessages.AddUserMessage(userQuestion);
+
+            // Clear the userQuestion textbox
+            userQuestion = string.Empty;
+
+            var response = await chatCompletionService.GetChatMessageContentsAsync(ChatMessages);
+            Logger.LogInformation($"Model Response: {response}");
+            ChatMessages.Add(response[^1]);
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "An error occurred while processing the chat request.");
+            errorDetails = ex.ToString();
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private void CreateChat()
+    {
+        try
+        {
+            Logger.LogInformation("Initializing Chat component");
+
+            // read the settings from the configuration
+            endpoint = Configuration["endpoint"] ?? throw new ArgumentNullException("Endpoint");
+            apiKey = Configuration["apikey"] ?? string.Empty;
+            tenantId = Configuration["tenantid"] ?? string.Empty;
+            deploymentName = Configuration["deploymentname"] ?? "gpt-4o-mini";
+
+            Logger.LogInformation($"===================================================");
+            Logger.LogInformation($"Chat info - Endpoint: {endpoint} - DeploymentName: {deploymentName} - ApiKey length: {apiKey.Length}");
+
+            var builder = Kernel.CreateBuilder();
+
+            
+            if (endpoint == "https://models.github.ai/inference")
+            {
+                // GITHUB MODELS
+                Logger.LogInformation("Using GitHub Models");
+                
+                // create client
+                var client = new OpenAIClient(
+                    new ApiKeyCredential(apiKey), 
+                    new OpenAIClientOptions { Endpoint = new Uri(endpoint) });
+
+                // Create a chat completion service
+                builder.AddOpenAIChatCompletion(deploymentName, client);
+
+            }
+            else if (string.IsNullOrEmpty(apiKey))
+            {
+                // AZURE OPENAI WITH DEFAULT CREDENTIAL
+                Logger.LogInformation("Azure OpenAI: Using Default Azure Credential");
+                var options = new DefaultAzureCredentialOptions();
+                if (!string.IsNullOrEmpty(tenantId))
+                {
+                    Logger.LogInformation($"Using TenantId: {tenantId}");
+                    options.TenantId = tenantId;
+                }
+                var credential = new DefaultAzureCredential(options);
+
+                // Create a chat completion service
+                builder.AddAzureOpenAIChatCompletion(deploymentName, endpoint, credential);
+
+            }
+            else
+            {
+                // AZURE OPENAI WITH APIKEY CREDENTIAL
+                Logger.LogInformation("Azure OpenAI: Using ApiKeyCredential");
+                builder.AddAzureOpenAIChatCompletion(deploymentName, endpoint, apiKey);
+            }
+
+            // Get the chat completion service
+            Kernel kernel = builder.Build();
+            chatCompletionService = kernel.GetRequiredService<IChatCompletionService>();
+            Logger.LogInformation($"Chat component initialized successfully");
+            Logger.LogInformation($"===================================================");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "An error occurred while initializing the chat component.");
+            errorDetails = ex.ToString();
+        }
+    }
+}
