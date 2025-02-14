@@ -1,95 +1,95 @@
 # ghcb-episode4
 
-## Getting Started with .NET 9 and Aspire
+## Comenzando con .NET 9 y Aspire
 
-To get started with this project, you need to have .NET 9 and Aspire installed on your machine.
+Para comenzar con este proyecto, necesitas tener .NET 9 y Aspire instalados en tu máquina.
 
-### Prerequisites
+### Requisitos Previos
 
-- [.NET 9 SDK](https://dotnet.microsoft.com/download/dotnet/9.0)
+- [SDK de .NET 9](https://dotnet.microsoft.com/download/dotnet/9.0)
 - [Aspire](https://aspire.com/download)
 
-### Installation
+### Instalación
 
-1. Clone the repository:
+1. Clona el repositorio:
     ```sh
     git clone https://github.com/yourusername/ghcb-episode4.git
     cd ghcb-episode4
     ```
 
-2. Install the required packages:
+2. Instala los paquetes requeridos:
     ```sh
     dotnet restore
     ```
 
-## Testing the Project Locally
+## Probar el Proyecto Localmente
 
-To test the project locally, follow these steps:
+Para probar el proyecto localmente, sigue estos pasos:
 
-1. Build the project:
+1. Construye el proyecto:
     ```sh
     dotnet build
     ```
 
-2. Run the project:
+2. Ejecuta el proyecto:
     ```sh
     dotnet run
     ```
 
-3. Open your browser and navigate to `http://localhost:5000` to see the application running.
+3. Abre tu navegador y navega a `http://localhost:5000` para ver la aplicación en funcionamiento.
 
-## Testing with CodeSpaces
+## Probar con CodeSpaces
 
-To test the project using GitHub CodeSpaces:
+Para probar el proyecto usando GitHub CodeSpaces:
 
-1. Open the repository in GitHub.
-2. Click on the `Code` button and select `Open with CodeSpaces`.
-3. Wait for the CodeSpace to initialize.
-4. Once the environment is ready, open the terminal and run:
+1. Abre el repositorio en GitHub.
+2. Haz clic en el botón `Code` y selecciona `Open with CodeSpaces`.
+3. Espera a que el CodeSpace se inicialice.
+4. Una vez que el entorno esté listo, abre la terminal y ejecuta:
     ```sh
     dotnet run
     ```
-5. Open the forwarded port to see the application running.
+5. Abre el puerto reenviado para ver la aplicación en funcionamiento.
 
-## Collaborating on the Project
+## Colaborar en el Proyecto
 
-We welcome contributions to this project. To contribute, follow these steps:
+Damos la bienvenida a las contribuciones a este proyecto. Para contribuir, sigue estos pasos:
 
-1. Fork the repository.
-2. Create a new branch:
+1. Haz un fork del repositorio.
+2. Crea una nueva rama:
     ```sh
-    git checkout -b feature/your-feature-name
+    git checkout -b feature/tu-nombre-de-feature
     ```
-3. Make your changes and commit them:
+3. Realiza tus cambios y haz commit:
     ```sh
-    git commit -m "Add your message here"
+    git commit -m "Agrega tu mensaje aquí"
     ```
-4. Push to the branch:
+4. Empuja a la rama:
     ```sh
-    git push origin feature/your-feature-name
+    git push origin feature/tu-nombre-de-feature
     ```
-5. Open a pull request on GitHub.
+5. Abre un pull request en GitHub.
 
-Please make sure to follow the [code of conduct](CODE_OF_CONDUCT.md) and [contributing guidelines](CONTRIBUTING.md).
+Por favor, asegúrate de seguir el [código de conducta](CODE_OF_CONDUCT.md) y las [directrices de contribución](CONTRIBUTING.md).
 
-## Home.razor Component
+## Componente Home.razor
 
-The `Home.razor` component is a Blazor page that provides a chat interface for users to interact with an AI model. It initializes a chat service based on the configuration settings and handles user input to generate responses from the AI model.
+El componente `Home.razor` es una página de Blazor que proporciona una interfaz de chat para que los usuarios interactúen con un modelo de IA. Inicializa un servicio de chat basado en la configuración y maneja la entrada del usuario para generar respuestas del modelo de IA.
 
-### Key Functionalities
+### Funcionalidades Clave
 
-- Displaying chat messages from the user and the AI assistant.
-- Handling user input and sending it to the AI model for processing.
-- Displaying loading indicators and error messages.
-- Initializing the chat service based on the configuration settings.
+- Mostrar mensajes de chat del usuario y del asistente de IA.
+- Manejar la entrada del usuario y enviarla al modelo de IA para su procesamiento.
+- Mostrar indicadores de carga y mensajes de error.
+- Inicializar el servicio de chat basado en la configuración.
 
-### State Diagram
+### Diagrama de Estados
 
 ```mermaid
 stateDiagram
-    [*] --> Initializing
-    Initializing --> Ready : OnInitialized
-    Ready --> Loading : AskQuestion
-    Loading --> Ready : ResponseReceived
-    Ready --> Error : ErrorOccurred
-    Error --> Ready : Retry
+    [*] --> Inicializando
+    Inicializando --> Listo : OnInitialized
+    Listo --> Cargando : AskQuestion
+    Cargando --> Listo : ResponseReceived
+    Listo --> Error : ErrorOccurred
+    Error --> Listo : Retry
