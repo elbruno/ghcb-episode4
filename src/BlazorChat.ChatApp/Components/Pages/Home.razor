@@ -8,12 +8,15 @@
 @using Microsoft.SemanticKernel.ChatCompletion
 @using System.ClientModel
 @using OpenAI
+@using Microsoft.AspNetCore.Components.Web
+
 @attribute [StreamRendering(true)]
 @rendermode InteractiveServer
 
 <PageTitle>Chat</PageTitle>
 
-<link href="css/Home.css" rel="stylesheet" />
+<!-- Removed inline styles and added reference to external CSS file -->
+<link href="Home.razor.css" rel="stylesheet" />
 
 <div class="chat-container">
     <div class="chat-bubble assistant">
@@ -82,7 +85,7 @@
 
 <div class="chat-input-container">
     <input type="text" @bind="userQuestion" placeholder="Ask a question..." class="chat-input" />
-    <button @onclick="AskQuestion" type="submit" class="chat-button">Chat</button>
+    <button @onclick="AskQuestion" class="ask-button">Ask</button>
 </div>
 
 @if (!string.IsNullOrEmpty(errorDetails))
@@ -176,15 +179,15 @@
 
             var builder = Kernel.CreateBuilder();
 
-            
+
             if (endpoint == "https://models.github.ai/inference")
             {
                 // GITHUB MODELS
                 Logger.LogInformation("Using GitHub Models");
-                
+
                 // create client
                 var client = new OpenAIClient(
-                    new ApiKeyCredential(apiKey), 
+                    new ApiKeyCredential(apiKey),
                     new OpenAIClientOptions { Endpoint = new Uri(endpoint) });
 
                 // Create a chat completion service
