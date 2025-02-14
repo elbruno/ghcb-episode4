@@ -71,3 +71,25 @@ We welcome contributions to this project. To contribute, follow these steps:
 5. Open a pull request on GitHub.
 
 Please make sure to follow the [code of conduct](CODE_OF_CONDUCT.md) and [contributing guidelines](CONTRIBUTING.md).
+
+## Home.razor Component
+
+The `Home.razor` component is a Blazor page that provides a chat interface for users to interact with an AI model. It initializes a chat service based on the configuration settings and handles user input to generate responses from the AI model.
+
+### Key Functionalities
+
+- Displaying chat messages from the user and the AI assistant.
+- Handling user input and sending it to the AI model for processing.
+- Displaying loading indicators and error messages.
+- Initializing the chat service based on the configuration settings.
+
+### State Diagram
+
+```mermaid
+stateDiagram
+    [*] --> Initializing
+    Initializing --> Ready : OnInitialized
+    Ready --> Loading : AskQuestion
+    Loading --> Ready : ResponseReceived
+    Ready --> Error : ErrorOccurred
+    Error --> Ready : Retry
