@@ -1,6 +1,9 @@
 var builder = DistributedApplication.CreateBuilder(args);
 
-var chatapp = builder.AddProject<Projects.BlazorChat_ChatApp>("chatapp")
+var appInsights = builder.AddAzureApplicationInsights("appInsights");
+
+builder.AddProject<Projects.BlazorChat_ChatApp>("chatapp")
+    .WithReference(appInsights)
     .WithExternalHttpEndpoints();
 
 builder.Build().Run();

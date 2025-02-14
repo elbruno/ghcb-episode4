@@ -33,6 +33,14 @@ module resources 'resources.bicep' = {
   }
 }
 
+module appInsights 'appInsights/appInsights.module.bicep' = {
+  name: 'appInsights'
+  scope: rg
+  params: {
+    location: location
+    logAnalyticsWorkspaceId: resources.outputs.AZURE_LOG_ANALYTICS_WORKSPACE_ID
+  }
+}
 output MANAGED_IDENTITY_CLIENT_ID string = resources.outputs.MANAGED_IDENTITY_CLIENT_ID
 output MANAGED_IDENTITY_NAME string = resources.outputs.MANAGED_IDENTITY_NAME
 output AZURE_LOG_ANALYTICS_WORKSPACE_NAME string = resources.outputs.AZURE_LOG_ANALYTICS_WORKSPACE_NAME
@@ -42,3 +50,4 @@ output AZURE_CONTAINER_REGISTRY_NAME string = resources.outputs.AZURE_CONTAINER_
 output AZURE_CONTAINER_APPS_ENVIRONMENT_NAME string = resources.outputs.AZURE_CONTAINER_APPS_ENVIRONMENT_NAME
 output AZURE_CONTAINER_APPS_ENVIRONMENT_ID string = resources.outputs.AZURE_CONTAINER_APPS_ENVIRONMENT_ID
 output AZURE_CONTAINER_APPS_ENVIRONMENT_DEFAULT_DOMAIN string = resources.outputs.AZURE_CONTAINER_APPS_ENVIRONMENT_DEFAULT_DOMAIN
+output APPINSIGHTS_APPINSIGHTSCONNECTIONSTRING string = appInsights.outputs.appInsightsConnectionString
