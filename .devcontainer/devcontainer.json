@@ -1,0 +1,18 @@
+{
+    "name": "ghcb-episode4",
+    "image": "mcr.microsoft.com/dotnet/sdk:9.0",
+    "features": {
+        "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+    },
+    "postCreateCommand": "dotnet restore",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-dotnettools.csharp",
+                "ms-vscode.vscode-node-azure-pack"
+            ]
+        }
+    },
+    "forwardPorts": [5000],
+    "remoteUser": "vscode"
+}
