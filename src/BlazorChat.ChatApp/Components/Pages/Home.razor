@@ -15,13 +15,10 @@
 
 <PageTitle>Chat</PageTitle>
 
-<!-- Removed inline styles and added reference to external CSS file -->
-<link href="Home.razor.css" rel="stylesheet" />
-
-<div class="chat-container">
-    <div class="chat-bubble assistant">
-        <div class="chat-title">Blazor ChatApp</div>
-        <div class="chat-content">
+<div >
+    <div >
+        <div >Blazor ChatApp</div>
+        <div >
             <p>Hi, I'm @deploymentName, let's chat!</p>
             <p>Check the Settings page to test the model using GitHub Models, Azure AI Foundry or to use custom settings.</p>
         </div>
@@ -59,17 +56,10 @@
 
         if (!string.IsNullOrEmpty(messageContent))
         {
-            <div class="@(message.Role == AuthorRole.User ? "chat-bubble user" : "chat-bubble assistant")">
-                <div class="chat-title">@messageTitle:</div>
-                <div class="chat-content">
+            <div>
+                <div >@messageTitle:</div>
+                <div >
                     @messageContent
-                    @if (message.Role == AuthorRole.Assistant && !string.IsNullOrEmpty(messageThink))
-                    {
-                        <details>
-                            <summary class="think-summary">Show Think Process</summary>
-                            <div class="think-content">@messageThink</div>
-                        </details>
-                    }
                 </div>
             </div>
         }
@@ -78,21 +68,21 @@
 
 @if (isLoading)
 {
-    <div class="loading-container">
-        <div class="loading-ring"></div>
+    <div>
+        Loading ...
     </div>
 }
 
-<div class="chat-input-container">
-    <input type="text" @bind="userQuestion" placeholder="Ask a question..." class="chat-input" />
-    <button @onclick="AskQuestion" class="ask-button">Ask</button>
+<div>
+    <input type="text" @bind="userQuestion" placeholder="Ask a question..."/>
+    <button @onclick="AskQuestion">Ask</button>
 </div>
 
 @if (!string.IsNullOrEmpty(errorDetails))
 {
-    <div class="error-container">
-        <div class="error-title">Error:</div>
-        <div class="error-content">@errorDetails</div>
+    <div>
+        <div >Error:</div>
+        <div >@errorDetails</div>
     </div>
 }
 
@@ -230,26 +220,3 @@
         }
     }
 }
-
-<!-- Explanation of the functionality -->
-<!--
-The Home.razor component is a Blazor page that provides a chat interface for users to interact with an AI model. 
-It initializes a chat service based on the configuration settings and handles user input to generate responses from the AI model.
-
-Key functionalities:
-- Displaying chat messages from the user and the AI assistant.
-- Handling user input and sending it to the AI model for processing.
-- Displaying loading indicators and error messages.
-- Initializing the chat service based on the configuration settings.
-
-State Diagram:
-```mermaid
-stateDiagram
-    [*] --> Initializing
-    Initializing --> Ready : OnInitialized
-    Ready --> Loading : AskQuestion
-    Loading --> Ready : ResponseReceived
-    Ready --> Error : ErrorOccurred
-    Error --> Ready : Retry
-```
--->
